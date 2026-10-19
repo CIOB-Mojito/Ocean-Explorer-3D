@@ -10,6 +10,10 @@ body {
   height: 100%;
   overflow: hidden;
   background: #0a1628;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #app {
@@ -19,4 +23,67 @@ body {
 
 canvas {
   display: block;
+  touch-action: none;
+}
+
+.look-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  touch-action: none;
+}
+
+.joystick {
+  position: fixed;
+  left: calc(env(safe-area-inset-left, 0px) + 5vmin);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 5vmin);
+  width: 34vmin;
+  height: 34vmin;
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  z-index: 2;
+  touch-action: none;
+}
+
+.joystick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42%;
+  height: 42%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transform: translate(-50%, -50%);
+}
+
+.vbtn {
+  position: fixed;
+  right: calc(env(safe-area-inset-right, 0px) + 5vmin);
+  width: 16vmin;
+  height: 16vmin;
+  max-width: 90px;
+  max-height: 90px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  border: 2px solid rgba(255, 255, 255, 0.32);
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5vmin;
+  line-height: 1;
+  z-index: 2;
+  touch-action: none;
+}
+
+.vbtn-up {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 30vmin);
+}
+
+.vbtn-down {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8vmin);
 }

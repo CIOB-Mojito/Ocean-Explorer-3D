@@ -8,8 +8,8 @@ export interface World {
 
 export function createWorld(container: HTMLElement): World {
   const scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x0a2a4a)
-  scene.fog = new THREE.FogExp2(0x0a2a4a, 0.045)
+  scene.background = new THREE.Color(0x2e93ad)
+  scene.fog = new THREE.FogExp2(0x2e93ad, 0.022)
 
   const camera = new THREE.PerspectiveCamera(
     55,
@@ -24,7 +24,7 @@ export function createWorld(container: HTMLElement): World {
   renderer.setSize(container.clientWidth, container.clientHeight)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.1
+  renderer.toneMappingExposure = 1.2
   container.appendChild(renderer.domElement)
 
   addLights(scene)
@@ -33,13 +33,13 @@ export function createWorld(container: HTMLElement): World {
 }
 
 function addLights(scene: THREE.Scene): void {
-  const ambient = new THREE.AmbientLight(0x6090c0, 0.7)
+  const ambient = new THREE.AmbientLight(0x78aed6, 1.0)
   scene.add(ambient)
 
-  const hemisphere = new THREE.HemisphereLight(0x88bbff, 0x445533, 0.5)
+  const hemisphere = new THREE.HemisphereLight(0xa8e2ff, 0x6e7a4e, 0.75)
   scene.add(hemisphere)
 
-  const directional = new THREE.DirectionalLight(0xddeeff, 0.9)
+  const directional = new THREE.DirectionalLight(0xeaf6ff, 1.3)
   directional.position.set(4, 12, 6)
   scene.add(directional)
 }
