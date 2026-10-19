@@ -2,6 +2,12 @@ import './style.css'
 import { createWorld, handleResize, type World } from './core/scene'
 import { createControls } from './core/controls'
 import { createAquariumEnvironment } from './environment/aquarium'
+import {
+  ANEMONE_SCALE,
+  chooseAnemoneSetup,
+  loadAnemone,
+  type Anemone,
+} from './environment/anemone'
 import { loadClownfish, updateClownfish, type Clownfish } from './clownfish/clownfish'
 import * as THREE from 'three'
 
@@ -16,19 +22,49 @@ world.scene.add(createAquariumEnvironment())
 const controls = createControls(world)
 
 let clownfish: Clownfish | null = null
-loadClownfish(world.scene, '/models/pez_payaso.glb', {
-  scale: 1.6,
-  position: new THREE.Vector3(0, 2, 0),
-  rotation: new THREE.Euler(0, Math.PI / 2, 0),
-}).then((cf) => {
-  clownfish = cf
-  clownfish.speed = 1.0
-})
+let anemone: Anemone | null = null
+
+async function initCharacters(): Promise<void> {
+  const setup = chooseAnemoneSetup(world.scene, ANEMONE_SCALE)
+
+  try {
+    anemone = await loadAnemone(
+      world.scene,
+      '/models/anemona.glb',
+      setup.placement,
+      ANEMONE_SCALE,
+    )
+  } catch (error) {
+    anemone = null
+    console.warn(
+      'No se pudo cargar la anémona; el pez mantiene su comportamiento original.',
+      error,
+    )
+  }
+
+  try {
+    clownfish = await loadClownfish(world.scene, '/models/pez_payaso.glb', {
+      scale: 1.6,
+      position: new THREE.Vector3(0, 2, 0),
+      rotation: new THREE.Euler(0, Math.PI / 2, 0),
+      home: anemone ? setup.home : null,
+      obstacles: anemone ? setup.obstacles : [],
+    })
+    clownfish.speed = 1.0
+  } catch (error) {
+    console.error('No se pudo cargar el pez payaso.', error)
+  }
+}
+
+void initCharacters()
 
 const clock = new THREE.Clock()
 function animate(): void {
   const delta = clock.getDelta()
   controls.update(delta)
+  if (anemone) {
+    anemone.update(delta)
+  }
   if (clownfish) {
     updateClownfish(clownfish, delta)
   }
