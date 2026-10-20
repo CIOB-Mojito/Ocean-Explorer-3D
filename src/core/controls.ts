@@ -14,40 +14,12 @@ const LOOK_SMOOTH = 16
 const MAX_PITCH = 1.45
 const JOY_DEADZONE = 0.12
 const KNOB_TRAVEL = 0.6
-const CAM_RADIUS = 0.35
 const MIN_X = -15
 const MAX_X = 15
 const MIN_Z = -15
 const MAX_Z = 15
 const MIN_Y = 0.6
 const MAX_Y = 12.0
-
-interface Collider {
-  x: number
-  y: number
-  z: number
-  r: number
-}
-
-function collectColliders(scene: THREE.Scene): Collider[] {
-  const colliders: Collider[] = []
-  const worldPos = new THREE.Vector3()
-  const worldScale = new THREE.Vector3()
-  scene.traverse((object) => {
-    const mesh = object as THREE.Mesh
-    if (!mesh.isMesh) return
-    const geometry = mesh.geometry as THREE.BufferGeometry
-    if (geometry.type !== 'IcosahedronGeometry') return
-    if (!geometry.boundingSphere) geometry.computeBoundingSphere()
-    const sphere = geometry.boundingSphere
-    if (!sphere) return
-    mesh.getWorldPosition(worldPos)
-    mesh.getWorldScale(worldScale)
-    const radius = sphere.radius * Math.max(worldScale.x, worldScale.y, worldScale.z)
-    colliders.push({ x: worldPos.x, y: worldPos.y, z: worldPos.z, r: radius })
-  })
-  return colliders
-}
 
 function clamp(value: number, min: number, max: number): number {
   if (value < min) return min
@@ -74,7 +46,6 @@ export function createControls(world: World): FreeControls {
   const velocity = new THREE.Vector3()
   const desired = new THREE.Vector3()
   const position = camera.position
-  const colliders = collectColliders(world.scene)
 
   const parent: HTMLElement = world.renderer.domElement.parentElement ?? document.body
 
@@ -189,29 +160,10 @@ export function createControls(world: World): FreeControls {
   bindHold(upButton, (held) => { upHeld = held })
   bindHold(downButton, (held) => { downHeld = held })
 
-  function resolveCollisions(point: THREE.Vector3): void {
+  function clampPosition(point: THREE.Vector3): void {
     point.x = clamp(point.x, MIN_X, MAX_X)
     point.z = clamp(point.z, MIN_Z, MAX_Z)
     point.y = clamp(point.y, MIN_Y, MAX_Y)
-    for (const collider of colliders) {
-      const dx = point.x - collider.x
-      const dy = point.y - collider.y
-      const dz = point.z - collider.z
-      const minDist = collider.r + CAM_RADIUS
-      const distSq = dx * dx + dy * dy + dz * dz
-      if (distSq >= minDist * minDist) continue
-      if (distSq > 1e-6) {
-        const scale = minDist / Math.sqrt(distSq)
-        point.x = collider.x + dx * scale
-        point.y = collider.y + dy * scale
-        point.z = collider.z + dz * scale
-      } else {
-        point.y = collider.y + minDist
-      }
-      point.x = clamp(point.x, MIN_X, MAX_X)
-      point.z = clamp(point.z, MIN_Z, MAX_Z)
-      point.y = clamp(point.y, MIN_Y, MAX_Y)
-    }
   }
 
   function update(delta: number): void {
@@ -255,7 +207,7 @@ export function createControls(world: World): FreeControls {
     position.y += velocity.y * dt
     position.z += velocity.z * dt
 
-    resolveCollisions(position)
+    clampPosition(position)
   }
 
   function dispose(): void {

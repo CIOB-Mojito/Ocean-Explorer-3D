@@ -9,6 +9,7 @@ import {
   type Anemone,
 } from './environment/anemone'
 import { loadClownfish, updateClownfish, type Clownfish } from './clownfish/clownfish'
+import { loadSchool, updateSchool, type School } from './school/school'
 import * as THREE from 'three'
 
 const app = document.querySelector<HTMLElement>('#app')
@@ -23,9 +24,21 @@ const controls = createControls(world)
 
 let clownfish: Clownfish | null = null
 let anemone: Anemone | null = null
+let school: School | null = null
 
 async function initCharacters(): Promise<void> {
-  const setup = chooseAnemoneSetup(world.scene, ANEMONE_SCALE)
+  const setup = chooseAnemoneSetup(ANEMONE_SCALE)
+
+  const schoolPromise = loadSchool(world.scene, '/models/pez_cardumen.glb', {
+    scale: 1.2,
+    obstacles: setup.obstacles,
+  })
+    .then((loaded) => {
+      school = loaded
+    })
+    .catch((error) => {
+      console.error('No se pudo cargar el cardumen.', error)
+    })
 
   try {
     anemone = await loadAnemone(
@@ -54,6 +67,8 @@ async function initCharacters(): Promise<void> {
   } catch (error) {
     console.error('No se pudo cargar el pez payaso.', error)
   }
+
+  await schoolPromise
 }
 
 void initCharacters()
@@ -67,6 +82,9 @@ function animate(): void {
   }
   if (clownfish) {
     updateClownfish(clownfish, delta)
+  }
+  if (school) {
+    updateSchool(school, delta)
   }
   world.renderer.render(world.scene, world.camera)
   requestAnimationFrame(animate)

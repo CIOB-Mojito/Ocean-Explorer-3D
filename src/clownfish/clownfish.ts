@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 
 export type ClownfishState = 'explore' | 'return' | 'stay' | 'leave'
-export type ClownfishObstacleKind = 'rock' | 'anemone'
+export type ClownfishObstacleKind = 'anemone'
 
 export interface ClownfishObstacle {
   x: number
